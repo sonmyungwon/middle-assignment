@@ -1,0 +1,83 @@
+/손명원	
+//2018011861
+#define _CRT_SECURE_NO_WARNINGS
+#include <malloc.h>
+#include<stdio.h>
+#define MAX_SIZE 10
+
+
+
+//array의 동적 할당을 위해 array를 포인터 변수로 선언한다.
+typedef  struct  _Stack {
+	int top;
+	int capacity;
+	int* array;
+}stack;
+
+//struct 로 수정, MAX_SIZE<-MAXSIZE
+//포인트변수값이 초기화되지 않도록 a포인트 변수에 s값을 저장한다.
+stack* CreateStack() {
+	stack* s = (stack*)malloc(sizeof(stack));
+	if (s != NULL) {
+		s->capacity = MAX_SIZE;
+		s->top = -1;
+		s->array = (int*)malloc(s->capacity * sizeof(int));
+	}return s;
+}
+char Top(stack* s) { return s->array[s->top]; }//이용하는 함수보다 먼저 선언되어있어야되서 옮겼습니다.
+
+int isEmptyStack(stack* s) {//비어있게 되면 empty를 출력한다.
+	if (s->top == -1) {
+		printf("empty\n");
+	}
+	return 0;
+}
+int isFullStack(stack* s) {//차있게 되면 full 을 출력한다.
+	if (s->top == s->capacity) {
+		printf("full\n");
+	}
+	return 0;
+}
+//push 일떄는 스택이 가득차있는지 확인해야된다.그래서 isfullstack이 스택에 들어와야한다.
+int  PushStack(stack* s, int data) {
+	if (isFullStack(s))
+		;
+	else {
+		s->array[++s->top] = data;
+		printf("%d\n", Top(s));
+
+	}return 0;
+}
+//top을 참조해야되는 popatack이 top보다 뒤에있어서 오류가 생긴다.
+
+//;가 없다.i
+int PopStack(stack* s) {
+	if (isEmptyStack(s))
+		;
+	else {
+		printf("%d\n", Top(s));
+		s->array[s->top--];
+
+	}return 0;
+}
+
+void DeleteStack(stack* s) {
+	if (s) {
+		if (s->array) {//먼저 스택안에 있는 배열을 동적할당 했기때문에 먼저 free해주어야 오류가 없다.
+			s->array = NULL;
+			free(s->array);
+		}
+		free(s);
+	}
+}
+
+//포인트 변수s가 초기화되어 주소값이 NULL이 되었다. 때문에 포인트 변수값을 저장해주는 다른 변수 a를 만들어서 포인트값이 초기화되어 NULL이되지 않도록했다.
+int main() {
+	stack* s = CreateStack();
+	for (int i = 0; i <= MAX_SIZE; i++) {
+		PushStack(s, i * 10);
+		Top(s);
+	}
+
+	DeleteStack(s);
+}
