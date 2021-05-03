@@ -1,0 +1,153 @@
+//손명원
+//2018111861    
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <string.h>
+#define MAXSIZE 20
+
+typedef struct _node {//학생의 이름과 성적을 입력할수있게 변수를 만든다.
+    char* name;
+    int score;
+    struct _node* next;
+} node;
+
+
+typedef struct _list {
+    node* student;
+    node* pos;
+    int count;
+} list;
+
+list* InitList() {
+    list* l = (list*)malloc(sizeof(list));
+    if (l) {//ㅣ이 NULL이 아닐경우에만 동적할당을 한다.
+
+        l->student = (node*)malloc(sizeof(node));//학생의 이름과 이름을 보관할 노드를 만든다.
+        l->student = NULL;//초기화 를 시켜준다.
+        l->pos = NULL;
+        l->count = 0;
+    }return l;
+}
+
+int ListLen(list* l) {
+    return l->count;
+}
+
+void PrintList(list* l) {//list에 들어있는 값을 출력하기위해 사용하고pos는 스택에서 사용했었던 top과같은역할을해준다.
+    l->pos = l->student;
+    while (l && (l->pos != NULL)) {
+        printf("%s %d -> ", l->pos->name, l->pos->score);
+        l->pos = l->pos->next;//다음 노드로 이동한다.
+    }
+    printf("NULL\n");
+}
+
+void InsertListstudent(list* l,char* input,int num) {
+    node* N = (node*)malloc(sizeof(node));
+    if (!N) {
+        printf("Failed to create node\n");
+        return;
+    }
+
+    N->name = input;//이름을 N노드에 저장한다.
+    N->score = num;//성적을 N노드에 저장한다.
+    N->next = l->student;//N노드의 다음 노드로 연결해주는데 이값이 l->student이다.
+    l->student = N;//student노드가 다음 입력받은 노드와 연결될수있도록한다.
+    ++(l->count); //노드수를 카운트해준다.
+}
+
+int DeleteListstudent(list* l) {//노드를지워주는 함수이다.
+    int data = l->student->score;//점수를 data에 복사한다.
+    char* data2 = l->student->name;//이름을 data에 복사한다.
+    l->pos = l->student; //pos에 studet를 입력하고
+    if (l->pos != NULL) {//pos가 널이 아니면 실행단다.
+        l->pos = l->pos->next;//다음 포스로 넘기고 
+        --(l->count);//1을 줄여서 카운트해준다.
+        free(l->pos);//다음 포스에 달당되있던 즉 l->student의 메모리 할당을 종료한다.
+    }
+    printf("%d%s deleted\n", data,data2);
+    return data; return data2;
+}
+
+void DelList(list* l) {
+    while (l && (l->student != NULL)) {
+        if (l) {
+            l->pos = l->student;
+            l->student = l->student->next;
+            free(l->pos);
+        }
+    }
+    free(l);
+}
+//노드들을 비고하여 가장 큰 값을 찾는 함수이다.
+void comparenodeMAX(list* l) {
+    node* MAX = (node*)malloc(sizeof(node));
+    MAX = NULL;
+    l->pos = l->student;
+    MAX = l->student; //MAX노드에 l->student의 값을 입력하고 
+    if (MAX != NULL) {//MAX노드가 NULL이 아닐때 실행한다.
+        while (l->pos != NULL) {//pos가 null이 아닐동안만 실행한다.
+            l->pos = l->pos->next;//ㅣ->pos를 다음 으로 넘겨 다음 노드에 있는 값을 불러온다.
+            if (l->pos == NULL) {//실행도중에 pos가  null이 되면 에러가뜬다 따라서 null이되면 반복문을 종료한다.
+                break;
+            }
+            else if (MAX->score < l->pos->score) {//다음 노드에 있는 성적이 MAX노드에 있는 점수보다 높게되면다음 pos에있는 값을 
+                MAX = l->pos;//MAX노드에 넣어준다. 이작업을 pos가 null일때깢 반복해주면 가장큰 수를 가진 노드가 MAX노드에 남게 된다.
+            }
+
+        }
+
+    }printf("최대점수를 받은사람:%s\n최대점수:%d\n", MAX->name, MAX->score);
+}
+
+
+void comparenodeMIN(list* l) {
+    node* MIN = (node*)malloc(sizeof(node));//위에 MAX노드와 같게 이번에는 작을때만 MIN노드에 저장한다.
+    MIN = NULL;
+    l->pos = l->student;
+    MIN = l->student;
+    while (l->pos != NULL) {
+        l->pos = l->pos->next;
+        if (l->pos == NULL) {
+            break;
+        }
+        else if (MIN->score > l->pos->score) {
+            MIN = l->pos;
+        }
+    }printf("최소점수를 받은사람:%s\n최소점수:%d\n", MIN->name, MIN->score);
+
+}
+void comparenodeAVR(list* l) {//평균은 l->student->score에 있는 모든수를 다 입력받고
+    l->pos = l->student;// 다 더한후 노드의 수인count로 나누어주면 평균값이 나오게된다.
+    int sum = 0;
+    int avr;
+    while (1) {
+        avr = l->pos->score;
+        l->pos = l->pos->next;
+        sum = avr + sum;
+        if (l->pos == NULL) {
+            break;
+        }
+    }avr = sum / l->count;
+    printf("평균점수;%d\n", avr);
+}
+
+int main(void) {
+    list* l = InitList();
+    char input_name[MAXSIZE];
+    int input_score = 0;
+    for (int i = 0; i < 5; i++) {
+        printf("이름을 입력하시오: ");
+        scanf("%s", input_name);
+        printf("점수를 입력하시오: ");
+        scanf("%d", &input_score);
+        InsertListstudent(l, input_name,input_score);
+    }
+    PrintList(l);
+    comparenodeMAX(l);//최고점수와 이름을 출력해준다
+    comparenodeMIN(l);//최저점수와 이름을 출력한다.
+    comparenodeAVR(l);//성적의 평균값을 출력하나다.
+    return 0;
+}
