@@ -1,0 +1,143 @@
+//손명원
+//2018011861
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+int a;//광역변수로 a를 선언해준다.
+typedef struct _node {
+    int data;
+    struct _node* next;
+} node;
+
+typedef struct _list {
+    node* head;
+    node* pos;
+    int count;
+} list;
+
+list* InitList() {
+    list* l = (list*)malloc(sizeof(list));
+    l->head = (node*)malloc(sizeof(node));
+    l->head = NULL;
+    l->pos = NULL;
+    l->count = 0;
+    return l;
+}
+
+int ListLen(list* l) {
+    return l->count;
+}
+
+void PrintList(list* l) {
+    if (a == 0) {//만약 순환함수가 아니게 되면 cycletracker에서0을 반환하고 이를 광역변수a에 저장한다.
+        l->pos = l->head;
+        while (l && (l->pos != NULL)) {
+            printf("%d -> ", l->pos->data);
+            l->pos = l->pos->next;
+        }
+        printf("NULL\n");
+    }
+    else if (a == 1) {//순환함수이게 되면 head에 저장되어있던수가 가시 똑같은수가 나오게 되면 그때종료하여 무한하게 계속 
+        if (l->head == NULL) return;//호출되는것을 막는다.
+        l->pos = l->head->next;
+        int origin;
+        origin = l->pos;
+         while (l->pos != l->head){
+            printf("%d -> ", l->pos->data);
+            l->pos = l->pos->next;
+            if (l->pos == origin) { break; }
+        } 
+        printf("%d ->\n", l->pos->data);
+    }
+}
+void InsertListHead(list* l, int data) {
+    node* new = (node*)malloc(sizeof(node));
+    if (!new) {
+        printf("Failed to create node\n");
+        return;
+    }
+    new->data = data;
+    new->next = l->head;
+    l->head = new;
+    
+    ++(l->count);
+}
+
+int DeleteListHead(list* l) {
+    int data = l->head->data;
+
+    l->pos = l->head;
+    if (l->pos != NULL) {
+        l->pos = l->pos->next;
+        --(l->count);
+        free(l->pos);
+    }
+    printf("%d deleted\n", data);
+    return data;
+}
+
+void DelList(list* l) {
+    while (l && (l->head != NULL)) {
+        l->pos = l->head;
+        l->head = l->head->next;
+        free(l->pos);
+    }
+    free(l);
+}
+
+
+void CycleMaker(list* l , int data) {//순환을 만들어준다
+    node* new = (node*)malloc(sizeof(node));
+    if (!new) {
+        printf("Failed to create node\n");
+        return;
+    }
+    new->data = data;
+    if (l->head == NULL) {//만약 l->head에 수가 들어있지 않을 경우에는 스스로를 다음에 부른다.
+        l->head = new;
+        new->next = l->head;
+        ++(l->count);
+    }
+    else {//null이 아닐경우에는 new는 다음에 l->head->next로 가고 그다으메는 다시 new로 돌아온다.
+        new->next = l->head->next;
+        l->head->next = new;
+        ++(l->count);
+    }
+}
+
+
+void Cycle_tracker(list* l) {
+    int k = 0;
+    l->pos = l->head;
+    while (l && (l->pos != NULL)) {//만약 순환스택이 아니게되면 언젠가는 값이 들어있지 않은 null이 나오게된다
+        l->pos = l->pos->next;//하지만 순환이게되면 들어있는 스택의 수보다 순환하면서 더 많은 반복이있을수있으므로
+                              //순환함수라면 count보다 더 커지게 된다.
+        k = k ++;
+        if (k > l->count)
+            break;
+    }
+    if (k > l->count) {//순환함수이면 k > l->count일때 while문이 종료되었으므로 k가 ㅣ->count
+        printf("circulating \n");//보다 크게 되므로 순환함수임을 알게된다.
+        a = 1;
+    }
+    else {//그렇지 않은겨우면 NULL로 끝났던것이고 이는 순환함수가 아닌것을 의미한다.
+        printf("Not circulating \n");
+        a = 0;
+    }return a;
+}
+int main(void) {
+    list* l = InitList();
+    list* cycle = InitList();
+    for (int i = 0; i < 10; i++) {
+        InsertListHead(l, i);
+        CycleMaker(cycle,i);
+    }
+    Cycle_tracker(l);
+    PrintList(l);
+    Cycle_tracker(cycle);
+    PrintList(cycle);
+  
+    
+    return 0;
+}
