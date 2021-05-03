@@ -1,0 +1,64 @@
+// 손명원
+//2018011861
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#define MAX_SIZE 10000
+
+
+int main() {
+
+	int letter_count = 0;
+	int top[2] = { 0, };
+	char line[100];
+	//  define a stack
+	char countStr[MAX_SIZE] = { 0, };
+	char Encoding[MAX_SIZE] = { 0, };
+	char Decoding[MAX_SIZE] = { 0, };
+	char ch[2] = { 0, };
+
+
+	//  initialize the stack
+	printf("Input string to compress: ");
+	scanf("%s", line);
+	//대문자를 소문자로 만들어준다.
+	for (int i = 0; line[i]; i++) {
+		line[i] = tolower(line[i]);// convert to lower case
+	}
+	ch[0] = line[0];
+	for (int i = 0; i <= strlen(line); i++) {
+		// compress the string here
+		//같은 수가 중복되면 문자수를 카운트해준다.
+		if (ch[0] == line[i]) {
+			letter_count++;
+		}
+		else {//같지 않게 되면  sprint를 이용하여 countStr에 %d형의 문자수값을 넣어주고
+			//stract를 써서 Encoding에countStr갑을 넣어주고 다음의 문자ch를 넣어준다.
+			sprintf(countStr, "%d", letter_count);
+			strcat(Encoding, countStr);
+			strcat(Encoding, ch);
+			ch[0] = line[i];
+			letter_count = 1;
+		}
+	}printf("압축된 문자열 : %s \n", Encoding);
+
+	int num1;
+	// 문자열을 정수로 변환하여 num1에 할당
+	//ch[0]을 바로 for문에 넣으면 아스키 코드 번호로 입력되므로 그값을 추출해내서 for문이 작동되게 만들어준다.
+	ch[0] = Encoding[0];
+	for (int i = 0; i <= strlen(Encoding); i++) {
+		num1 = atoi(&ch[0]);
+		if (ch[0] != Encoding[i]) {
+			for (int j = 0; j < num1; j++) {
+				countStr[j] = Encoding[i];
+			}//strcat를 이용하여 Decoding배열에 countStr값을 넣어준다.
+			strcat(Decoding, countStr);
+			//countStr의 값을초기화 시키지 않으면 이전에 했던 값도 같이 출력되므로 초기화 시켜준다.
+			for (int k = 0; k < num1; k++) { countStr[k] = 0; }
+			ch[0] = Encoding[++i];
+		}
+	}printf("해체된 문자열 : %s \n", Decoding);
+	return 0;
+}
